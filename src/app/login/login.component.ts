@@ -5,7 +5,7 @@ import {AlertService, AuthenticationService } from '../_services/index';
 
 @Component({
     //moduleId: module.id,
-    templateUrl: 'login.compenent.html'
+    templateUrl: 'login.component.html'
 })
 export class LoginComponent implements OnInit {
     model:  any ={};

@@ -1,34 +1,77 @@
-import { Component } from '@angular/core';
+import { Component, OnInit  } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { first } from 'rxjs/operators';
 
-import { AlertService, UserService } from '../_services/index';
+import { AlertService, UserService } from '../_services';
 
 @Component({
     //moduleId: module.id,
     templateUrl: 'register.component.html'
 })
 
-export class RegisterComponent {
-    model: any = {};
+export class RegisterComponent implements OnInit {
+    registerForm: FormGroup;
+    //model: any = {};
     loading = false;
+    submitted = false;
 
     constructor(
-        private router: Router)//,
-        //private userService: UserService,
-        //private alertService: AlertService)
+        private formBuilder: FormBuilder,
+        private router: Router,
+        private userService: UserService,
+        private alertService: AlertService)
     { }
 
-    register() {
-        this.loading = true;
-        //this.userService.create(this.model)
-        //    .subscribe(
-        //        data => {
-        //            this.alertService.success('Registration successful', true);
-        //            this.router.navigate(['login']);
-        //        },
-        //        error => {
-        //            this.alertService.error(error);
-        //            this.loading = false;
-        //        });
+    ngOnInit() {
+        this.registerForm = this.formBuilder.group({
+            firstName: ['', Validators.required],
+            lastName: ['', Validators.required],
+            userName: ['', Validators.required],
+            password: ['', [Validators.required, Validators.minLength(6)]]
+        });
     }
+
+    // convenience getter for easy access to form fields
+    get f() { return this.registerForm.controls; }
+
+    onSubmit() {
+        this.submitted = true;
+
+        // stop here if form is invalid
+        if (this.registerForm.invalid) {
+            return;
+        }
+
+        this.loading = true;
+        this.userService.register(this.registerForm.value)
+            .pipe(first())
+            .subscribe(
+                data => {
+                    console.log("what you doing");
+                    this.alertService.success('Registeration successful', true);
+                    this.router.navigate(['/login']);
+                },
+                error => {
+                    console.log("There was an error");
+                    console.log(error);
+                    this.alertService.error(error);
+                    this.loading = false;
+                });
+        return;
+    }
+
+    //register() {
+    //    this.loading = true;
+    //    //this.userService.create(this.model)
+    //    //    .subscribe(
+    //    //        data => {
+    //    //            this.alertService.success('Registration successful', true);
+    //    //            this.router.navigate(['login']);
+    //    //        },
+    //    //        error => {
+    //    //            this.alertService.error(error);
+    //    //            this.loading = false;
+    //    //        });
+    //}
 }
